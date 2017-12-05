@@ -103,12 +103,6 @@ class InitializeGame extends React.Component {
     );
   }
 
-  chooseWords() {
-    return (
-      <div>Player 1 word?</div>
-    );
-  }
-
   setNumPlayers = (numPlayers) => {
     this.setState({
       numPlayers: numPlayers,
@@ -130,7 +124,7 @@ class InitializeGame extends React.Component {
       view = this.selectPlayers();
     }
     else {
-      view = this.chooseWords();
+      view = <WordChooser numPlayers={this.props.numPlayers} setPlayerWordsCallback={this.props.setPlayerWordsCallback} />
     }
 
     return (
@@ -144,6 +138,83 @@ class InitializeGame extends React.Component {
         <div>
           <button onClick={this.props.resetGameCallback}>Reset Game</button>
         </div>
+      </div>
+    );
+  }
+}
+
+class WordChooser extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const numPlayers = parseInt(props.numPlayers);
+
+    this.state = {
+      playerIndex: 0,
+      playerWords: Array(numPlayers).fill().map((u) => u = {name: "", word: ""}),
+    };
+  }
+
+  setPlayerName = (name) => {
+    let playerWords = this.state.playerWords.slice();
+    playerWords[this.state.playerIndex]["name"] = name;
+
+    this.setState({
+      playerWords: playerWords,
+    });
+  }
+
+  setPlayerWord = (word) => {
+    let playerWords = this.state.playerWords.slice();
+    playerWords[this.state.playerIndex]["word"] = word;
+
+    this.setState({
+      playerWords: playerWords,
+    });
+  }
+
+  nextPlayer = () => {
+    let currentIndex = this.state.playerIndex;
+
+    currentIndex += 1;
+    if (currentIndex === this.state.playerWords.length) {
+      currentIndex = 0;
+    }
+
+    this.setState({
+      playerIndex: currentIndex,
+    });
+  }
+
+  prevPlayer = () => {
+    let currentIndex = this.state.playerIndex;
+
+    currentIndex -= 1;
+    if (currentIndex < 0) {
+      currentIndex = this.state.playerWords.length - 1;
+    }
+
+    this.setState({
+      playerIndex: currentIndex,
+    });
+  }
+
+  render() {
+    const playerIndex = this.state.playerIndex;
+
+    return (
+      <div>
+        <UserInput id={"playerName" + playerIndex} label={"Player " + (playerIndex + 1) + " name"}
+                   value={this.state.playerWords[playerIndex]["name"]}
+                   onChangeCallback={this.setPlayerName}
+        />
+        <UserInput id={"playerWord" + playerIndex} label={"Player " + (playerIndex + 1) + " word"}
+                   value={this.state.playerWords[playerIndex]["word"]}
+                   onChangeCallback={this.setPlayerWord}
+        />
+
+        <button onClick={this.prevPlayer}>Back</button>
+        <button onClick={this.nextPlayer}>Next Player</button>
       </div>
     );
   }

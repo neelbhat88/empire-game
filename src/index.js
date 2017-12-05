@@ -7,6 +7,7 @@ const GAME_STEPS = Object.freeze({
   initialize: "initialize",
   ready: "gameReady",
   playing: "playing",
+  editing: "editing",
 });
 
 class Game extends React.Component {
@@ -31,6 +32,24 @@ class Game extends React.Component {
   initializeGame = () => {
     this.setState({
       step: GAME_STEPS["initialize"],
+    });
+  }
+
+  readWords = () => {
+    this.setState({
+      step: GAME_STEPS["playing"],
+    });
+  }
+
+  setReadyState = () => {
+    this.setState({
+      step: GAME_STEPS["ready"],
+    });
+  }
+
+  viewEditWords = () => {
+    this.setState({
+      step: GAME_STEPS["editing"],
     });
   }
 
@@ -61,7 +80,17 @@ class Game extends React.Component {
                                resetGameCallback={this.restartGame} />
         break;
       case GAME_STEPS["ready"]:
-        step = <GameReady restartGame={this.restartGame} viewEditWords={this.initializeGame} />
+        step = <GameReady restartGame={this.restartGame} viewEditWords={this.viewEditWords} readWords={this.readWords} />
+        break;
+      case GAME_STEPS["playing"]:
+        step = <WordReader words={this.state.playerWords.map(w => w.word)} finishCallback={this.setReadyState} />
+        break;
+      case GAME_STEPS["editing"]:
+        step = <WordChooser playerWords={this.state.playerWords} setPlayerWordsCallback={this.setPlayerWords}
+                            editing={true} />
+        break;
+      default:
+        step = <NewGame beginGameCallback={this.initializeGame} />
         break;
     }
     return (
@@ -90,7 +119,7 @@ class InitializeGame extends React.Component {
     super(props);
 
     this.state = {
-      numPlayers: parseInt(props.numPlayers),
+      numPlayers: parseInt(props.numPlayers, 10),
     }
   }
 
@@ -107,7 +136,7 @@ class InitializeGame extends React.Component {
 
   setNumPlayers = (numPlayers) => {
     this.setState({
-      numPlayers: parseInt(numPlayers),
+      numPlayers: parseInt(numPlayers, 10),
     });
   }
 
@@ -149,9 +178,15 @@ class WordChooser extends React.Component {
   constructor(props) {
     super(props);
 
+    let editing = false;
+    if (props.editing !== undefined) {
+      editing = props.editing
+    }
+
     this.state = {
       playerIndex: 0,
       playerWords: props.playerWords.slice(),
+      editing: editing,
     };
   }
 
@@ -209,7 +244,7 @@ class WordChooser extends React.Component {
     const playerNames = this.state.playerWords.filter(a => a.name !== "")
     const playerWords = this.state.playerWords.filter(a => a.word !== "")
 
-    if (playerNames.length != this.props.playerWords.length || playerWords.length != this.props.playerWords.length) {
+    if (playerNames.length !== this.props.playerWords.length || playerWords.length !== this.props.playerWords.length) {
       return false;
     }
 
@@ -232,8 +267,11 @@ class WordChooser extends React.Component {
         />
 
         <div>
-          <button onClick={this.prevPlayer}>Back</button>
-          <button onClick={this.nextPlayer}>Next Player</button>
+          {
+            this.state.editing ? <button onClick={this.prevPlayer}>Back</button> : ''
+          }
+          <button onClick={this.nextPlayer}
+                  disabled={this.allWordsSet() && !this.state.editing}>Next Player</button>
         </div>
 
         <div>
@@ -246,11 +284,53 @@ class WordChooser extends React.Component {
   }
 }
 
-class UserInput extends React.Component {
+class WordReader extends React.Component {
   constructor(props) {
     super(props);
+
+    let words = props.words.slice();
+    words.unshift("Go!");
+    words.unshift("Ready?");
+
+    this.state = {
+      wordIndex: 0,
+      words: words,
+    };
   }
 
+  componentDidMount() {
+    this.timerID = setInterval(() => {
+      this.nextWord();
+    }, 1500);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.timerID);
+  }
+
+  nextWord = () => {
+    let nextIndex = this.state.wordIndex + 1;
+
+    if (nextIndex === this.state.words.length) {
+      this.props.finishCallback();
+      return;
+    }
+
+    this.setState({
+      wordIndex: nextIndex,
+    });
+  }
+
+  render() {
+    return (
+      <div>
+        {this.state.words[this.state.wordIndex]}
+      </div>
+    );
+  }
+}
+
+class UserInput extends React.Component {
   handleInput(e) {
     const value = e.target.value;
     this.props.onChangeCallback(value);
@@ -312,7 +392,7 @@ function GameReady(props) {
           When you're ready, tell me to 'Read the Words' or 'Restart the Game'"}
       </div>
       <div>
-        <button className="primary">Read Words</button>
+        <button className="primary" onClick={props.readWords}>Read Words</button>
         <button className="secondary" onClick={props.restartGame}>Restart Game</button>
         <button className="secondary" onClick={props.viewEditWords}>View/Edit Words</button>
       </div>

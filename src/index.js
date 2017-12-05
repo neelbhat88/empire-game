@@ -14,7 +14,7 @@ class Game extends React.Component {
     super(props);
 
     this.state = {
-      numPlayers: null,
+      numPlayers: undefined,
       playerWords: [],
       step: GAME_STEPS["new"],
     }
@@ -22,7 +22,7 @@ class Game extends React.Component {
 
   restartGame = () => {
     this.setState({
-      numPlayers: null,
+      numPlayers: undefined,
       playerWords: [],
       step: GAME_STEPS["new"],
     });
@@ -37,12 +37,14 @@ class Game extends React.Component {
   setNumPlayers = (numPlayers) => {
     this.setState({
       numPlayers: numPlayers,
+      playerWords: Array(numPlayers).fill().map((u) => u = {name: "", word: ""})
     });
   }
 
   setPlayerWords = (playerWords) => {
     this.setState({
       playerWords: playerWords,
+      step: GAME_STEPS["ready"],
     });
   }
 
@@ -59,7 +61,7 @@ class Game extends React.Component {
                                resetGameCallback={this.restartGame} />
         break;
       case GAME_STEPS["ready"]:
-        step = <GameReady restartGame={this.restartGame} />
+        step = <GameReady restartGame={this.restartGame} viewEditWords={this.initializeGame} />
         break;
     }
     return (
@@ -88,7 +90,7 @@ class InitializeGame extends React.Component {
     super(props);
 
     this.state = {
-      numPlayers: props.numPlayers,
+      numPlayers: parseInt(props.numPlayers),
     }
   }
 
@@ -105,7 +107,7 @@ class InitializeGame extends React.Component {
 
   setNumPlayers = (numPlayers) => {
     this.setState({
-      numPlayers: numPlayers,
+      numPlayers: parseInt(numPlayers),
     });
   }
 
@@ -120,11 +122,11 @@ class InitializeGame extends React.Component {
 
   render() {
     let view;
-    if (this.props.numPlayers === null || this.props.numPlayers === 0) {
+    if (this.props.numPlayers === undefined || this.props.numPlayers === 0) {
       view = this.selectPlayers();
     }
     else {
-      view = <WordChooser numPlayers={this.props.numPlayers} setPlayerWordsCallback={this.props.setPlayerWordsCallback} />
+      view = <WordChooser playerWords={this.props.playerWords} setPlayerWordsCallback={this.props.setPlayerWordsCallback} />
     }
 
     return (
@@ -147,11 +149,9 @@ class WordChooser extends React.Component {
   constructor(props) {
     super(props);
 
-    const numPlayers = parseInt(props.numPlayers);
-
     this.state = {
       playerIndex: 0,
-      playerWords: Array(numPlayers).fill().map((u) => u = {name: "", word: ""}),
+      playerWords: props.playerWords.slice(),
     };
   }
 
@@ -199,6 +199,23 @@ class WordChooser extends React.Component {
     });
   }
 
+  finishWordChooser = () => {
+    if (!this.allWordsSet()) { return; }
+
+    this.props.setPlayerWordsCallback(this.state.playerWords);
+  }
+
+  allWordsSet() {
+    const playerNames = this.state.playerWords.filter(a => a.name !== "")
+    const playerWords = this.state.playerWords.filter(a => a.word !== "")
+
+    if (playerNames.length != this.props.playerWords.length || playerWords.length != this.props.playerWords.length) {
+      return false;
+    }
+
+    return true;
+  }
+
   render() {
     const playerIndex = this.state.playerIndex;
 
@@ -208,13 +225,22 @@ class WordChooser extends React.Component {
                    value={this.state.playerWords[playerIndex]["name"]}
                    onChangeCallback={this.setPlayerName}
         />
-        <UserInput id={"playerWord" + playerIndex} label={"Player " + (playerIndex + 1) + " word"}
-                   value={this.state.playerWords[playerIndex]["word"]}
-                   onChangeCallback={this.setPlayerWord}
+        <HideableUserInput id={"playerWord" + playerIndex} label={"Player " + (playerIndex + 1) + " word"}
+                           defaultHidden={this.state.playerWords[playerIndex]["word"] !== "" ? true : false}
+                           value={this.state.playerWords[playerIndex]["word"]}
+                           onChangeCallback={this.setPlayerWord}
         />
 
-        <button onClick={this.prevPlayer}>Back</button>
-        <button onClick={this.nextPlayer}>Next Player</button>
+        <div>
+          <button onClick={this.prevPlayer}>Back</button>
+          <button onClick={this.nextPlayer}>Next Player</button>
+        </div>
+
+        <div>
+          <button disabled={!this.allWordsSet()}
+                  onClick={this.finishWordChooser}>Done</button>
+        </div>
+
       </div>
     );
   }
@@ -242,6 +268,42 @@ class UserInput extends React.Component {
   }
 }
 
+class HideableUserInput extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      hidden: props.defaultHidden,
+    }
+  }
+
+  toggleDisplay = () => {
+    if (this.state.hidden) {
+      this.setState({
+        hidden: false,
+      });
+    }
+    else {
+      this.setState({
+        hidden: true,
+      });
+    }
+  }
+
+  render() {
+    const userInput = this.state.hidden ? '' :
+                      <UserInput id={this.props.id} label={this.props.label} type={this.props.type}
+                                 placeholder={this.props.placeholder} value={this.props.value}
+                                 onChangeCallback={this.props.onChangeCallback} />
+    return (
+      <div>
+        {userInput}
+        <div onClick={this.toggleDisplay}>{this.state.hidden ? "Show Word" : "Hide Word"}</div>
+      </div>
+    );
+  }
+}
+
 function GameReady(props) {
   return (
     <div>
@@ -251,7 +313,8 @@ function GameReady(props) {
       </div>
       <div>
         <button className="primary">Read Words</button>
-        <button className="secondary" onClick={() => props.restartGame()}>Restart Game</button>
+        <button className="secondary" onClick={props.restartGame}>Restart Game</button>
+        <button className="secondary" onClick={props.viewEditWords}>View/Edit Words</button>
       </div>
     </div>
   );

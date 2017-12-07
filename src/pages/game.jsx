@@ -15,9 +15,9 @@ class Game extends React.Component {
     super(props);
 
     this.state = {
-      numPlayers: 2,
-      playerWords: [{name: "neel", word: "bhat"}, {name: "nam", word: "donkey"}],
-      step: GAME_STEPS["ready"],
+      numPlayers: undefined,
+      playerWords: [],
+      step: GAME_STEPS["new"],
     }
   }
 

@@ -3,11 +3,11 @@ import React from 'react';
 function NewGame(props) {
   return (
     <div>
-      <div>
-        {"Welcome to Empire. This is a quick description of the game and rules"}
-      </div>
-      <div>
-        <button onClick={props.beginGameCallback}>Let's Play!</button>
+      <h1>
+        {"Welcome to Empire."}
+      </h1>
+      <div className="btn-container">
+        <button className="primary" onClick={props.beginGameCallback}>Let's Play!</button>
       </div>
     </div>
   );

@@ -7,44 +7,66 @@ ol, ul {
   padding-left: 30px;
 }
 
-.board-row:after {
-  clear: both;
-  content: "";
-  display: table;
+button {
+  border: 1px solid;
+  padding: 10px;
+  border-radius: 0;
+  background-color: #fff;
+  font-size: 14px;
+
+  margin: 0 10px 10px 0;
 }
 
-.status {
-  margin-bottom: 10px;
+button.primary {
+  color: #fff;
+  border-color: #1da8d1;
+  background-color: #1da8d1;
 }
 
-.square {
-  background: #fff;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
+button:disabled {
+  color: #ccc;
+  background-color: #f0f0f0;
+  border-color: #f0f0f0;
 }
 
-.square:focus {
+button.secondary {
+  color: #333;
+  border-color: #aaa;
+}
+
+input {
+  padding: 15px 20px;
+  border: 1px solid rgba(159, 163, 167, 0.3);
+  border-radius: 4px;
   outline: none;
+  background-color: transparent;
+  color: #1da8d1;
+  margin-bottom: 10px;
+  font-size: 14px;
+
+  -webkit-appearance: none;
 }
 
-.kbd-navigation .square:focus {
-  background: #ddd;
+.reset-btn-container {
+  margin-top: 40px;
 }
 
-.game {
-  display: flex;
-  flex-direction: row;
+.hideable-container {
+  position: relative;
+  min-height: 50px;
 }
 
-.game-info {
-  margin-left: 20px;
+.hideable-container .hide-show-link {
+  position: absolute;
+  top: 0px;
+  left: 150px;
+
+  color: #666;
+  font-style: italic;
+}
+
+.word-reader-container {
+  font-size: 52px;
+  text-align: center;
+  padding: 20px;
 }

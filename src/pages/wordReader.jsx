@@ -39,7 +39,7 @@ class WordReader extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="word-reader-container">
         {this.state.words[this.state.wordIndex]}
       </div>
     );

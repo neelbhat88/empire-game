@@ -30,9 +30,9 @@ class HideableUserInput extends React.Component {
                                  placeholder={this.props.placeholder} value={this.props.value}
                                  onChangeCallback={this.props.onChangeCallback} />
     return (
-      <div>
+      <div className="hideable-container">
         {userInput}
-        <div onClick={this.toggleDisplay}>{this.state.hidden ? "Show Word" : "Hide Word"}</div>
+        <div className="hide-show-link" onClick={this.toggleDisplay}>{this.state.hidden ? "Show Word" : "Hide Word"}</div>
       </div>
     );
   }

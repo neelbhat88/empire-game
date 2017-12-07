@@ -15,10 +15,11 @@ class InitializeGame extends React.Component {
   selectPlayers() {
     return (
       <div>
-        <UserInput id="numPlayers" label="How many players?" type="number" value={this.state.numPlayers}
+        <h1>Select Players</h1>
+        <UserInput id="numPlayers" placeholder="How many players?" type="number" value={this.state.numPlayers}
                    onChangeCallback={this.setNumPlayers}
         />
-        <button onClick={this.submitNumPlayers}>Next</button>
+        <button className="primary" onClick={this.submitNumPlayers}>Next</button>
       </div>
     );
   }
@@ -50,12 +51,9 @@ class InitializeGame extends React.Component {
     return (
       <div>
         <div>
-          We are initializing the game! Currently, {this.props.numPlayers} players selected.
-        </div>
-        <div>
           {view}
         </div>
-        <div>
+        <div className="reset-btn-container">
           <button onClick={this.props.resetGameCallback}>Reset Game</button>
         </div>
       </div>

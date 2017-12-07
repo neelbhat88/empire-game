@@ -85,6 +85,9 @@ class WordChooser extends React.Component {
 
     return (
       <div>
+        <h1>Choose your word</h1>
+        <h3>Choose your word, press 'Next' and then pass it on!</h3>
+
         <UserInput id={"playerName" + playerIndex} label={"Player " + (playerIndex + 1) + " name"}
                    value={this.state.playerWords[playerIndex]["name"]}
                    onChangeCallback={this.setPlayerName}
@@ -99,15 +102,12 @@ class WordChooser extends React.Component {
           {
             this.state.editing ? <button onClick={this.prevPlayer}>Back</button> : ''
           }
-          <button onClick={this.nextPlayer}
+          <button className="primary" onClick={this.nextPlayer}
                   disabled={this.allWordsSet() && !this.state.editing}>Next Player</button>
-        </div>
 
-        <div>
-          <button disabled={!this.allWordsSet()}
+                <button className="primary" disabled={!this.allWordsSet()}
                   onClick={this.finishWordChooser}>Done</button>
         </div>
-
       </div>
     );
   }
